@@ -21,14 +21,17 @@ android {
 
     buildTypes {
         debug {
+            debuggable true
+            shrinkResources false
             buildConfigField "String", "BASE_URL", '"https://api.themoviedb.org/3/"'
             buildConfigField "String", "API_KEY", '"eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhYzNkM2YwOWU5YTc5NGEyYmJlNzg0ZjQ5NGViN2FlZSIsInN1YiI6IjYwZDA1YWRkZWNhZWY1MDAyZDJmNjc4YSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.K8gQtCu9Dx8F2fny3evRI2_X4Y1fxFJxYuZ9A-8KZjw"'
         }
         release {
-
+            debuggable false
             buildConfigField "String", "BASE_URL", '"https://api.themoviedb.org/3/"'
             buildConfigField "String", "API_KEY", '"ac3d3f09e9a794a2bbe784f494eb7aee"'
-            minifyEnabled false
+            shrinkResources true
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -66,11 +69,12 @@ dependencies {
     kapt 'com.github.bumptech.glide:compiler:4.11.0'
 
     //chucker
-    debugImplementation "com.github.chuckerteam.chucker:library:3.5.2"
-    releaseImplementation "com.github.chuckerteam.chucker:library-no-op:3.5.2"
+    def chucker_version = "3.5.2"
+    debugImplementation "com.github.chuckerteam.chucker:library:$chucker_version"
+    releaseImplementation "com.github.chuckerteam.chucker:library-no-op:$chucker_version"
 
     //lifecycle
-    def lifecycle_version = "2.6.0-alpha01"
+    def lifecycle_version = "2.6.1"
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
 
