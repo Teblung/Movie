@@ -29,7 +29,8 @@ interface ApiService {
     @GET("movie/{movie_id}/reviews")
     fun getReviewMovie(
         @Header("Authorization") token: String,
-        @Path("movie_id") movieId: Int
+        @Path("movie_id") movieId: Int,
+        @Query("page") page: Int
     ): Call<ReviewMovieResponse>
 
     @GET("movie/{movie_id}/videos")

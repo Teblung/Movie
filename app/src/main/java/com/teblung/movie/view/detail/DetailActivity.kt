@@ -63,7 +63,7 @@ class DetailActivity : AppCompatActivity() {
                 }
             }
 
-            getReview(this@DetailActivity, movieId)
+            getReview(this@DetailActivity, movieId, currentPage)
             observeReviewMovieLiveData().observe(this@DetailActivity) {
                 reviewAdapter.setData(it)
             }
@@ -149,7 +149,7 @@ class DetailActivity : AppCompatActivity() {
         // Here, we'll simulate data by generating random genre names
         val newData = mutableListOf<ReviewMovieResponse.Result>()
         viewModel.apply {
-            getReview(this@DetailActivity, currentPage)
+            getReview(this@DetailActivity, movieId, currentPage)
             observeReviewMovieLiveData().observe(
                 this@DetailActivity
             ) { newData.addAll(it) }

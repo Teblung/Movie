@@ -56,8 +56,8 @@ class DetailViewModel() : ViewModel() {
             })
     }
 
-    fun getReview(context: Context, movieId: Int) {
-        ApiClient().getApiService(context).getReviewMovie("Bearer $API_KEY", movieId)
+    fun getReview(context: Context, movieId: Int, page: Int) {
+        ApiClient().getApiService(context).getReviewMovie("Bearer $API_KEY", movieId, page)
             .enqueue(object : Callback<ReviewMovieResponse?> {
                 override fun onResponse(
                     call: Call<ReviewMovieResponse?>,
