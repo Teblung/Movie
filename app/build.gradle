@@ -1,6 +1,8 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'kotlin-parcelize'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -18,7 +20,14 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField "String", "BASE_URL", '"https://api.themoviedb.org/3/"'
+            buildConfigField "String", "API_KEY", '"eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhYzNkM2YwOWU5YTc5NGEyYmJlNzg0ZjQ5NGViN2FlZSIsInN1YiI6IjYwZDA1YWRkZWNhZWY1MDAyZDJmNjc4YSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.K8gQtCu9Dx8F2fny3evRI2_X4Y1fxFJxYuZ9A-8KZjw"'
+        }
         release {
+
+            buildConfigField "String", "BASE_URL", '"https://api.themoviedb.org/3/"'
+            buildConfigField "String", "API_KEY", '"ac3d3f09e9a794a2bbe784f494eb7aee"'
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -44,4 +53,28 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+
+    //retrofit
+    implementation "com.squareup.retrofit2:retrofit:2.9.0"
+    implementation "com.squareup.retrofit2:converter-gson:2.9.0"
+
+    //okhttp
+    implementation "com.squareup.okhttp3:logging-interceptor:4.10.0"
+
+    //glide
+    implementation 'com.github.bumptech.glide:glide:4.13.1'
+    kapt 'com.github.bumptech.glide:compiler:4.11.0'
+
+    //chucker
+    debugImplementation "com.github.chuckerteam.chucker:library:3.5.2"
+    releaseImplementation "com.github.chuckerteam.chucker:library-no-op:3.5.2"
+
+    //lifecycle
+    def lifecycle_version = "2.6.0-alpha01"
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
+
+    //youtube
+    implementation "com.pierfrancescosoffritti.androidyoutubeplayer:core:12.0.0"
+
 }
