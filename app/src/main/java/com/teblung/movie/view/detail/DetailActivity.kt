@@ -7,6 +7,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,9 +16,14 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.teblung.movie.R
 import com.teblung.movie.databinding.ActivityDetailBinding
+import com.teblung.movie.model.local.LocalDataSource
+import com.teblung.movie.model.local.entity.DetailMovie
+import com.teblung.movie.model.local.room.MovieDatabase
 import com.teblung.movie.model.remote.response.ReviewMovieResponse
 import com.teblung.movie.view.movie.MovieAdapter
 import com.teblung.movie.viewmodel.DetailViewModel
+import com.teblung.movie.viewmodel.RoomDetailViewModel
+import com.teblung.movie.viewmodel.ViewModelFactory
 
 class DetailActivity : AppCompatActivity() {
 
@@ -25,8 +31,16 @@ class DetailActivity : AppCompatActivity() {
         ActivityDetailBinding.inflate(layoutInflater)
     }
 
+    private val repository: LocalDataSource by lazy {
+        LocalDataSource(MovieDatabase.getInstance(this).movieDao())
+    }
+
     private val viewModel: DetailViewModel by lazy {
         ViewModelProvider(this)[DetailViewModel::class.java]
+    }
+
+    private val favViewModel: RoomDetailViewModel by lazy {
+        ViewModelProvider(this, ViewModelFactory(repository))[RoomDetailViewModel::class.java]
     }
 
     private lateinit var trailerAdapter: TrailerAdapter
@@ -35,6 +49,8 @@ class DetailActivity : AppCompatActivity() {
     private var movieId = 0
     private var isLoading = false
     private var currentPage = 1
+    private var id = 0
+    private var detailMovie: DetailMovie? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,6 +65,14 @@ class DetailActivity : AppCompatActivity() {
         viewModel.apply {
             getDetailMovie(this@DetailActivity, movieId)
             observeDetailMovieLiveData().observe(this@DetailActivity) {
+                id = it.id
+                detailMovie = DetailMovie(
+                    id = it.id,
+                    posterPath = it.posterPath,
+                    originalTitle = it.originalTitle,
+                    tagline = it.tagline,
+                    overview = it.overview
+                )
                 binding.apply {
                     Glide.with(this@DetailActivity)
                         .load("${MovieAdapter.BASE_URL_IMAGE}${it.posterPath}")
@@ -61,16 +85,62 @@ class DetailActivity : AppCompatActivity() {
                     tvTagLine.text = it.tagline
                     tvOverview.text = it.overview
                 }
+                favViewModel.getMovieDetail(id).observe(this@DetailActivity) { data ->
+                    Log.d("Bookmark", "Data $data")
+                    binding.btnBookmark.apply {
+                        text = if (data?.bookmarked == true) {
+                            "UnBookmark"
+                        } else {
+                            "Bookmark"
+                        }
+                    }
+                    binding.btnBookmark.setOnClickListener {
+                        Log.d("Bookmark", "State ${detailMovie?.bookmarked} || ${detailMovie?.originalTitle}")
+                        if (data != null) {
+                            if (!data.bookmarked) {
+                                detailMovie!!.bookmarked = true
+                                favViewModel.insert(detailMovie!!)
+                                binding.btnBookmark.text = "UnBookmark"
+                                Toast.makeText(this@DetailActivity, "Bookmark Success", Toast.LENGTH_SHORT).show()
+                            } else {
+                                data.bookmarked = false
+                                favViewModel.delete(data.id)
+                                binding.btnBookmark.text = "Bookmark"
+                                Toast.makeText(this@DetailActivity, "UnBookmark Success", Toast.LENGTH_SHORT).show()
+                            }
+                        } else {
+                            if (!detailMovie!!.bookmarked) {
+                                detailMovie!!.bookmarked = true
+                                favViewModel.insert(detailMovie!!)
+                                binding.btnBookmark.text = "UnBookmark"
+                                Toast.makeText(this@DetailActivity, "Bookmark Success", Toast.LENGTH_SHORT).show()
+                            } else {
+                                detailMovie!!.bookmarked = false
+                                favViewModel.delete(detailMovie!!.id)
+                                binding.btnBookmark.text = "Bookmark"
+                                Toast.makeText(this@DetailActivity, "UnBookmark Success", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                }
             }
 
             getReview(this@DetailActivity, movieId, currentPage)
             observeReviewMovieLiveData().observe(this@DetailActivity) {
                 reviewAdapter.setData(it)
+                if (it.isEmpty()) {
+                    Toast.makeText(this@DetailActivity, "No Data Review", Toast.LENGTH_SHORT)
+                        .show()
+                }
             }
 
             getTrailerMovie(this@DetailActivity, movieId)
             observeTrailerMovieLiveData().observe(this@DetailActivity) {
                 trailerAdapter.setData(it)
+                if (it.isEmpty()) {
+                    Toast.makeText(this@DetailActivity, "No Data Trailer", Toast.LENGTH_SHORT)
+                        .show()
+                }
             }
         }
     }
@@ -84,7 +154,8 @@ class DetailActivity : AppCompatActivity() {
             trailerAdapter = TrailerAdapter(lifecycle)
 
             rvReview.apply {
-                val linearLayout = LinearLayoutManager(this@DetailActivity, LinearLayoutManager.HORIZONTAL, false)
+                val linearLayout =
+                    LinearLayoutManager(this@DetailActivity, LinearLayoutManager.HORIZONTAL, false)
                 adapter = reviewAdapter
                 layoutManager = linearLayout
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {

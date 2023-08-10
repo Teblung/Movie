@@ -63,6 +63,17 @@
                 app:layout_constraintTop_toBottomOf="@id/tvTagLine"
                 tools:text="Overview" />
 
+            <Button
+                android:id="@+id/btnBookmark"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textAllCaps="false"
+                tools:text="Bookmark"
+                app:layout_constraintStart_toStartOf="@id/tvOverview"
+                app:layout_constraintEnd_toEndOf="@id/tvOverview"
+                app:layout_constraintTop_toBottomOf="@id/tvOverview"/>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView

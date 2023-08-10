@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.teblung.movie.databinding.ActivityGenreBinding
+import com.teblung.movie.view.favourite.FavouriteActivity
 import com.teblung.movie.viewmodel.GenreViewModel
 
 class GenreActivity : AppCompatActivity() {
@@ -37,6 +38,12 @@ class GenreActivity : AppCompatActivity() {
 
     private fun setupUI() {
         binding.apply {
+            btnShowBookmark.apply {
+                text = "Favourite Movie"
+                setOnClickListener {
+                    startActivity(FavouriteActivity.intentToFavouriteActivity(this@GenreActivity))
+                }
+            }
             genreAdapter = GenreAdapter()
             rvGenre.apply {
                 layoutManager = LinearLayoutManager(this@GenreActivity)
